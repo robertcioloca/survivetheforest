@@ -1,4 +1,6 @@
+@using Microsoft.AspNetCore.SignalR.Client
 @rendermode InteractiveWebAssembly
+@inject NavigationManager Nav
 
 <div class="bg-slate-800/75 text-white border-4 border-slate-500 rounded-lg p-4 w-1/3 h-1/3 mx-auto">
     <div class="text-center mb-4 text-amber-400">
@@ -7,19 +9,61 @@
     </div>
     @* <p>Current time: @currentTime</p> *@
     <div class="mb-4">
-        <button type="button" class="menu-button">Play</button>
+        <button type="button" class="menu-button" @onclick="Play">Play</button>
     </div>
     <div class="mb-4">
-        <button type="button" class="menu-button">High Score</button>
+        <button type="button" class="menu-button" @onclick=HighScore>High Score</button>
     </div>
-    <button @onclick="UpdateTime">Update</button>
+    @* <button @onclick="UpdateTime">Update</button> *@
 </div>
 
 @code {
+    HubConnection? hub;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hub = new HubConnectionBuilder()
+        .WithUrl(Nav.ToAbsoluteUri("/hubs/game"))
+        .WithAutomaticReconnect()
+        .Build();
+
+        hub.On<string, string>("GameInit", (u, msg) =>
+        {
+            Console.WriteLine("GameInit");
+            InvokeAsync(StateHasChanged);
+        });
+        hub.On<string, string>("ShowHighScore", (u, msg) =>
+        {
+            Console.WriteLine("ShowHighScore");
+            InvokeAsync(StateHasChanged);
+        });
+
+        try
+        {
+            await hub.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SignalR failed to connect: {ex.Message}");
+        }
+    }
+
     string currentTime = DateTime.Now.ToLongTimeString();
 
     void UpdateTime()
     {
         currentTime = DateTime.Now.ToLongTimeString();
+    }
+
+    async Task Play()
+    {
+        await hub!.SendAsync("NewGame");
+        Console.WriteLine("Play");
+    }
+
+    async Task HighScore()
+    {
+        await hub!.SendAsync("HighScore");
+        Console.WriteLine("High Score");
     }
 }

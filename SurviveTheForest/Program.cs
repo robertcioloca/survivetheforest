@@ -33,5 +33,6 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(SurviveTheForest.Client._Imports).Assembly);
 
 app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<GameHub>("/hubs/game");
 
 app.Run();
