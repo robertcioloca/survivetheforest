@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        font-family: 'MedievalSharp', cursive;
+        @apply tracking-widest;
+    }
+}
+
+.menu-button {
+    @apply px-4 py-2 border-2 border-slate-500 rounded-md w-full text-rose-400 bg-gradient-to-t from-slate-700 to-slate-600 hover:from-slate-800 hover:to-slate-700;
+}

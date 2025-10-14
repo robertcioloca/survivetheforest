@@ -1,0 +1,62 @@
+@page "/chat"
+@rendermode InteractiveWebAssembly
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Nav
+
+<h3>Chat</h3>
+
+<input @bind="user" placeholder="Name" />
+<input @bind="message" placeholder="Message" />
+<button @onclick="Send">Send</button>
+
+<ul>
+    @foreach (var m in messages)
+    {
+        <li>@m</li>
+    }
+</ul>
+
+@code {
+    HubConnection? hub;
+    string user = "";
+    string message = "";
+    List<string> messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hub = new HubConnectionBuilder()
+        .WithUrl(Nav.ToAbsoluteUri("/hubs/chat"))
+        .WithAutomaticReconnect()
+        .Build();
+
+        hub.On<string, string>("ReceiveMessage", (u, msg) =>
+        {
+            messages.Add($"{u}: {msg}");
+            InvokeAsync(StateHasChanged);
+        });
+
+        try
+        {
+            await hub.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SignalR failed to connect: {ex.Message}");
+        }
+    }
+
+    async Task Send()
+    {
+        if (!string.IsNullOrWhiteSpace(user) && !string.IsNullOrWhiteSpace(message))
+        {
+            await hub!.SendAsync("SendMessage", user, message);
+        }
+
+        message = "";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hub is not null) await hub.DisposeAsync();
+    }
+}

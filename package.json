@@ -1,0 +1,14 @@
+{
+    "scripts": {
+        "dev": "concurrently \"npm:tailwind\" \"dotnet watch run --project SurviveTheForest\"",
+        "tailwind": "tailwindcss -i ./SurviveTheForest/wwwroot/input.css -o ./SurviveTheForest/wwwroot/output.css --watch",
+        "tailwind:build": "tailwindcss -i ./SurviveTheForest/wwwroot/input.css -o ./SurviveTheForest/wwwroot/output.css --minify",
+        "build:dotnet": "dotnet publish SurviveTheForest/SurviveTheForest.csproj -c Release -o publish",
+        "build": "npm run tailwind:build && npm run build:dotnet",
+        "serve": "cd publish \"dotnet SurviveTheForest.dll --urls \"https://localhost:5001;http://localhost:5000\"\"/"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1",
+        "tailwindcss": "^3.4.0"
+    }
+}
