@@ -23,6 +23,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 node_modules/
+publish/
 
 # .NET Core
 project.lock.json
